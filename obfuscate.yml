@@ -24,4 +24,4 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: obfuscated-jar
-          path: output/*.ja
+          path: output/*.jar
