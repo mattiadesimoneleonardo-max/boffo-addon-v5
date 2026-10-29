@@ -1,0 +1,27 @@
+name: Obfuscate
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  obfuscate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21' }
+      - name: ProGuard herunterladen
+        run: |
+          curl -sSL -o pg.zip https://github.com/Guardsquare/proguard/releases/download/v7.6.1/proguard-7.6.1.zip
+          unzip -q pg.zip
+      - name: Obfuscaten
+        run: |
+          mkdir -p output
+          for f in input/*.jar; do
+            java -jar proguard-7.6.1/lib/proguard.jar @proguard.pro \
+              -injars "$f" -outjars "output/$(basename "$f" .jar)-obf.jar" \
+              -libraryjars "${JAVA_HOME}/jmods/java.base.jmod(!**.jar;!module-info.class)"
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: obfuscated-jar
+          path: output/*.jar
